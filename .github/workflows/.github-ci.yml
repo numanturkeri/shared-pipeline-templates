@@ -4,13 +4,15 @@ on:
   push:
     branches:
       - '*'
+  pull_request:
+    branches:
+      - main
 
 concurrency: production
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     services:
       postgres:
         image: postgres:latest
@@ -23,7 +25,6 @@ jobs:
           OMNI_DB_NAME: ${{vars.OMNI_DB_NAME}}
         ports:
           - 5432:5432
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
