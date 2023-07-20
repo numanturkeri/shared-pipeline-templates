@@ -1,0 +1,128 @@
+name: Maven CI
+
+on:
+  push:
+    branches:
+      - '*'
+
+concurrency: production
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          OMNI_DB_HOST: ${{vars.OMNI_DB_HOST}}
+          OMNI_DB_PORT: ${{vars.OMNI_DB_PORT}}
+          OMNI_DB_NAME: ${{vars.OMNI_DB_NAME}}
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'adopt'
+          java-version: '17'
+
+      - name: Build with Maven
+        if: ${{ true }}
+        run:
+          mvn clean install
+
+      - name: Run Tests
+        if: ${{ true }}
+        run: mvn test
+
+      - name: Set up Docker Buildx
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to GitHub Container Registry
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      #Dry run to estimate the next tag version
+      - name: Minor version Dry run
+        id: taggerDryRun
+        uses: anothrNick/github-tag-action@1.36.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true
+          DRY_RUN: true
+
+      - name: Build and push Docker image
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/omni:latest
+            ghcr.io/${{ github.repository }}/omni:${{ steps.taggerDryRun.outputs.new_tag }}
+
+      #Create the next tag version (Wet run)
+      - name: Create New Minor Version Git Tag
+        id: taggerFinalRun
+        uses: anothrNick/github-tag-action@1.36.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install and configure AWS CLI
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: |
+          curl "https://d1vvhvl2y92vvt.cloudfront.net/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install --update --bin-dir /usr/local/bin
+          aws configure set region eu-central-1
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Install Kubernetes CLI
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+
+      - name: Login to GitHub Container Registry
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deploy to Amazon EKS
+        if: ${{ github.ref == 'refs/heads/main'}}
+        run: |
+          aws eks --region eu-central-1 update-kubeconfig --name omni-cluster
+          kubectl create secret docker-registry github-registry \
+                --docker-server=ghcr.io \
+                --docker-username=${{ github.repository_owner }} \
+                --docker-password=${{ secrets.GITHUB_TOKEN }} \
+                --dry-run=client -o yaml | kubectl apply -f -
+          kubectl apply -f k8s.yaml
+          kubectl apply -f redis.yaml
+          kubectl rollout status deployment/omni-cluster
