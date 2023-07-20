@@ -9,7 +9,7 @@ on:
       - main
   workflow_call:
     inputs:
-      dry_run:
+      wet_run:
         required: true
         type: boolean
 
