@@ -11,7 +11,7 @@ concurrency: production
 
 jobs:
   build:
-   uses: numanturkeri/shared-pipeline-templates/.github/workflows/.build-maven.yml@main
+   uses: numanturkeri/shared-pipeline-templates/.github/workflows/.buildMaven.yml@main
 
   deploy:
     needs: build
