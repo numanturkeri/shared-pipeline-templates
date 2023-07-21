@@ -25,6 +25,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        repository: numanturkeri/omnisystem
+        ref: main
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
 
