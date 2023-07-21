@@ -8,6 +8,10 @@ on:
     branches:
       - main
   workflow_call:
+    inputs:
+      repository_name:
+        required: true
+        type: string
     secrets:
       registry_username:
         required: true
@@ -17,13 +21,12 @@ on:
 
 jobs:
   deploy:
-    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          repository: numanturkeri/omnisystem
+          repository: ${{ inputs.repository_name  }}
           ref: main
 
       - name: Install and configure AWS CLI
