@@ -9,9 +9,12 @@ on:
       - main
   workflow_call:
     inputs:
-      wet_run:
+      dry_run:
         required: true
         type: boolean
+    secrets:
+      github_token:
+        required: true
 
 jobs:
   tagging:
@@ -22,6 +25,6 @@ jobs:
         id: taggerDryRun
         uses: anothrNick/github-tag-action@1.36.0
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.github_token }}
           WITH_V: true
           DRY_RUN: ${{ inputs.dry_run }}
