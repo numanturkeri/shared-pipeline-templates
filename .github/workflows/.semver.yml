@@ -19,7 +19,14 @@ on:
 jobs:
   tagging:
     runs-on: ubuntu-latest
+    outputs:
+      newTag: ${{ steps.taggerDryRun.outputs.new_tag }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          repository: numanturkeri/omnisystem
+          ref: main
       #Dry run to estimate the next tag version
       - name: Minor version Dry run
         id: taggerDryRun
