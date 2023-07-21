@@ -12,6 +12,10 @@ on:
       dry_run:
         required: true
         type: boolean
+    outputs:
+      newTag:
+        description: "The newest tag of the repository"
+        value: ${{ jobs.tagging.outputs.newTag }}
 
 jobs:
   tagging:
