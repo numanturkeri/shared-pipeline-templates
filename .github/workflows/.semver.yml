@@ -13,7 +13,7 @@ on:
         required: true
         type: boolean
     secrets:
-      github_token:
+      repo_token:
         required: true
 
 jobs:
@@ -25,6 +25,6 @@ jobs:
         id: taggerDryRun
         uses: anothrNick/github-tag-action@1.36.0
         env:
-          GITHUB_TOKEN: ${{ secrets.github_token }}
+          GITHUB_TOKEN: ${{ secrets.repo_token }}
           WITH_V: true
           DRY_RUN: ${{ inputs.dry_run }}
