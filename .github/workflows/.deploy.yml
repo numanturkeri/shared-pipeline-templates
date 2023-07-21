@@ -1,4 +1,5 @@
-name: Shared Template
+name: Deploy
+
 on:
   push:
     branches:
@@ -6,20 +7,24 @@ on:
   pull_request:
     branches:
       - main
-      - master
+  workflow_call:
+    secrets:
+      registry_username:
+        required: true
+      registry_password:
+        required: true
 
-concurrency: production
 
 jobs:
-  build:
-   uses: numanturkeri/shared-pipeline-templates/.github/workflows/.buildMaven.yml@main
-
   deploy:
     needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+        with:
+          repository: numanturkeri/omnisystem
+          ref: main
 
       - name: Install and configure AWS CLI
         if: ${{ github.ref == 'refs/heads/main' }}
@@ -52,9 +57,8 @@ jobs:
           aws eks --region eu-central-1 update-kubeconfig --name omni-cluster
           kubectl create secret docker-registry github-registry \
                 --docker-server=ghcr.io \
-                --docker-username=${{ github.repository_owner }} \
-                --docker-password=${{ secrets.GITHUB_TOKEN }} \
+                --docker-username=${{ secrets.registry_username }} \
+                --docker-password=${{ secrets.registry_password }} \
                 --dry-run=client -o yaml | kubectl apply -f -
           kubectl apply -f k8s.yaml
-          kubectl apply -f redis.yaml
           kubectl rollout status deployment/omni-cluster

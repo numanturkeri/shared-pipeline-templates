@@ -14,6 +14,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          repository: numanturkeri/omnisystem
+          ref: main
 
       - name: Cache Maven dependencies
         uses: actions/cache@v2
