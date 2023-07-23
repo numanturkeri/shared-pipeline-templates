@@ -13,12 +13,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
+        if: ${{ true && github.repository != 'shared-pipeline-templates' }}
         uses: actions/checkout@v3
         with:
           repository: numanturkeri/omnisystem
           ref: main
 
       - name: Cache Maven dependencies
+        if: ${{ true && github.repository != 'shared-pipeline-templates' }}
         uses: actions/cache@v2
         with:
           path: ~/.m2/repository
@@ -27,16 +29,17 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Set up JDK
+        if: ${{ true && github.repository != 'shared-pipeline-templates' }}
         uses: actions/setup-java@v3
         with:
           distribution: 'adopt'
           java-version: '17'
 
       - name: Build with Maven
-        if: ${{ true }}
+        if: ${{ true && github.repository != 'shared-pipeline-templates' }}
         run:
           mvn clean install
 
       - name: Run Tests
-        if: ${{ true }}
+        if: ${{ true && github.repository != 'shared-pipeline-templates' }}
         run: mvn test
