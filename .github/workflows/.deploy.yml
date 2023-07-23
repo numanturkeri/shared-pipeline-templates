@@ -41,10 +41,10 @@ jobs:
           sudo ./aws/install --update --bin-dir /usr/local/bin
           aws configure set region eu-central-1
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set aws_secret_access_key DN4Xu0VL0SuqxfwQVgjsXS/2e+2hM0r65w/sk0iD
 
       - name: Install Kubernetes CLI
-        if: ${{ github.ref == 'refs/heads/main' }}
+        if: ${{ github.ref == 'refs/heads/main' && github.repository != 'numanturkeri/shared-pipeline-templates' }}
         run: |
           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x kubectl
@@ -59,7 +59,7 @@ jobs:
           password: ${{secrets.registry_password}}
 
       - name: Deploy to Amazon EKS
-        if: ${{ github.ref == 'refs/heads/main'  && github.repository != 'numanturkeri/shared-pipeline-templates' }}
+        if: ${{ github.ref == 'refs/heads/main' && github.repository != 'numanturkeri/shared-pipeline-templates' }}
         run: |
           aws eks --region eu-central-1 update-kubeconfig --name omni-cluster
           kubectl create secret docker-registry github-registry \
