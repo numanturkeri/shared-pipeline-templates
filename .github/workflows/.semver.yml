@@ -24,6 +24,7 @@ jobs:
       newTag: ${{ steps.taggerDryRun.outputs.new_tag }}
     steps:
       - name: Checkout repository
+        if: ${{ github.repository != 'shared-pipeline-templates' }}
         uses: actions/checkout@v3
         with:
           repository: numanturkeri/omnisystem

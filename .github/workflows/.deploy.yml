@@ -24,6 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
+        if: ${{ github.repository != 'shared-pipeline-templates' }}
         uses: actions/checkout@v3
         with:
           repository: ${{ inputs.repository_name  }}

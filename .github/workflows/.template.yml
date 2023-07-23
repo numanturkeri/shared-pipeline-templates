@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
+        if: ${{ github.repository != 'shared-pipeline-templates' }}
         uses: actions/checkout@v2
 
       - name: Install and configure AWS CLI
