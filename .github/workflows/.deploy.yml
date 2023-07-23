@@ -30,7 +30,7 @@ jobs:
           repository: ${{ inputs.repository_name  }}
           ref: main
 
-      - name: Install and configure AWS CLI
+      - name: Install AWS CLI
         if: ${{ github.ref == 'refs/heads/main' && github.repository != 'numanturkeri/shared-pipeline-templates' }}
         run: |
           set -x  # Adımları ayrıntılı olarak görmek için
@@ -39,9 +39,14 @@ jobs:
           curl "https://d1vvhvl2y92vvt.cloudfront.net/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip awscliv2.zip
           sudo ./aws/install --update --bin-dir /usr/local/bin
+
+      - name: Configure AWS CLI
+        if: ${{ github.ref == 'refs/heads/main' && github.repository != 'numanturkeri/shared-pipeline-templates' }}
+        run: |
+          set -x  # Adımları ayrıntılı olarak görmek için
           aws configure set region eu-central-1
-          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+          aws configure set aws_access_key_id ${{ secrets.$AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.$AWS_SECRET_ACCESS_KEY }}
 
       - name: Install Kubernetes CLI
         if: ${{ github.ref == 'refs/heads/main' && github.repository != 'numanturkeri/shared-pipeline-templates' }}
