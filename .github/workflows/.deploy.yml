@@ -40,8 +40,8 @@ jobs:
           unzip awscliv2.zip
           sudo ./aws/install --update --bin-dir /usr/local/bin
           aws configure set region eu-central-1
-          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
 
       - name: Install Kubernetes CLI
         if: ${{ github.ref == 'refs/heads/main' && github.repository != 'numanturkeri/shared-pipeline-templates' }}
