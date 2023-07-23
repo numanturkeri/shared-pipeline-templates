@@ -24,14 +24,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        if: ${{ github.repository != 'shared-pipeline-templates' }}
+        if: ${{ github.repository != 'omnisystem/shared-pipeline-templates' }}
         uses: actions/checkout@v3
         with:
           repository: ${{ inputs.repository_name  }}
           ref: main
 
       - name: Install and configure AWS CLI
-        if: ${{ github.ref == 'refs/heads/main' && github.repository != 'shared-pipeline-templates' }}
+        if: ${{ github.ref == 'refs/heads/main' && github.repository != 'omnisystem/shared-pipeline-templates' }}
         run: |
           sudo apt-get update
           sudo apt-get install -y unzip
@@ -50,7 +50,7 @@ jobs:
           sudo mv kubectl /usr/local/bin/
 
       - name: Login to GitHub Container Registry
-        if: ${{ github.ref == 'refs/heads/main' && github.repository != 'shared-pipeline-templates' }}
+        if: ${{ github.ref == 'refs/heads/main' && github.repository != 'omnisystem/shared-pipeline-templates' }}
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
@@ -58,7 +58,7 @@ jobs:
           password: ${{secrets.registry_password}}
 
       - name: Deploy to Amazon EKS
-        if: ${{ github.ref == 'refs/heads/main'}}
+        if: ${{ github.ref == 'refs/heads/main'  && github.repository != 'omnisystem/shared-pipeline-templates' }}
         run: |
           aws eks --region eu-central-1 update-kubeconfig --name omni-cluster
           kubectl create secret docker-registry github-registry \

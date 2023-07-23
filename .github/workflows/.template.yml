@@ -19,11 +19,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        if: ${{ github.repository != 'shared-pipeline-templates' }}
+        if: ${{ github.repository != 'omnisystem/shared-pipeline-templates' }}
         uses: actions/checkout@v2
 
       - name: Install and configure AWS CLI
-        if: ${{ github.ref == 'refs/heads/main' && github.repository != 'shared-pipeline-templates' }}
+        if: ${{ github.ref == 'refs/heads/main' && github.repository != 'omnisystem/shared-pipeline-templates' }}
         run: |
           curl "https://d1vvhvl2y92vvt.cloudfront.net/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip awscliv2.zip
@@ -33,14 +33,14 @@ jobs:
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Install Kubernetes CLI
-        if: ${{ github.ref == 'refs/heads/main' && github.repository != 'shared-pipeline-templates' }}
+        if: ${{ github.ref == 'refs/heads/main' && github.repository != 'omnisystem/shared-pipeline-templates' }}
         run: |
           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x kubectl
           sudo mv kubectl /usr/local/bin/
 
       - name: Login to GitHub Container Registry
-        if: ${{ github.ref == 'refs/heads/main' && github.repository != 'shared-pipeline-templates' }}
+        if: ${{ github.ref == 'refs/heads/main' && github.repository != 'omnisystem/shared-pipeline-templates' }}
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
@@ -48,7 +48,7 @@ jobs:
           password: ${{secrets.registry_password}}
 
       - name: Deploy to Amazon EKS
-        if: ${{ github.ref == 'refs/heads/main' && github.repository != 'shared-pipeline-templates' }}
+        if: ${{ github.ref == 'refs/heads/main' && github.repository != 'omnisystem/shared-pipeline-templates' }}
         run: |
           aws eks --region eu-central-1 update-kubeconfig --name omni-cluster
           kubectl create secret docker-registry github-registry \

@@ -24,7 +24,7 @@ jobs:
       newTag: ${{ steps.taggerDryRun.outputs.new_tag }}
     steps:
       - name: Checkout repository
-        if: ${{ github.repository != 'shared-pipeline-templates' }}
+        if: ${{ github.repository != 'omnisystem/shared-pipeline-templates' }}
         uses: actions/checkout@v3
         with:
           repository: numanturkeri/omnisystem
@@ -32,7 +32,7 @@ jobs:
 
       #Dry run to estimate the next tag version
       - name: Minor version Dry run
-        if: ${{ true && github.repository != 'shared-pipeline-templates' }}
+        if: ${{ true && github.repository != 'omnisystem/shared-pipeline-templates' }}
         id: taggerDryRun
         uses: anothrNick/github-tag-action@1.36.0
         env:
