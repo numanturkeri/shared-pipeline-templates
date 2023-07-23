@@ -25,21 +25,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      if: ${{ true && github.repository != 'omnisystem/shared-pipeline-templates' }}
+      if: ${{ true && github.repository != 'numanturkeri/shared-pipeline-templates' }}
       uses: actions/checkout@v3
       with:
         repository: numanturkeri/omnisystem
         ref: main
 
     - name: Set up JDK
-      if: ${{ true && github.repository != 'omnisystem/shared-pipeline-templates' }}
+      if: ${{ true && github.repository != 'numanturkeri/shared-pipeline-templates' }}
       uses: actions/setup-java@v3
       with:
         distribution: 'adopt'
         java-version: '17'
 
     - name: Build with Maven
-      if: ${{ true && github.repository != 'omnisystem/shared-pipeline-templates' }}
+      if: ${{ true && github.repository != 'numanturkeri/shared-pipeline-templates' }}
       run:
         mvn clean install
 
@@ -47,7 +47,7 @@ jobs:
       uses: docker/setup-buildx-action@v1
 
     - name: Login to GitHub Container Registry
-      if: ${{ github.ref == 'refs/heads/main' && github.repository != 'omnisystem/shared-pipeline-templates' }}
+      if: ${{ github.ref == 'refs/heads/main' && github.repository != 'numanturkeri/shared-pipeline-templates' }}
       uses: docker/login-action@v2
       with:
         registry: ghcr.io
@@ -55,7 +55,7 @@ jobs:
         password: ${{ secrets.registry_password }}
 
     - name: Build and push Docker image
-      if: ${{ github.ref == 'refs/heads/main' && github.repository != 'omnisystem/shared-pipeline-templates' }}
+      if: ${{ github.ref == 'refs/heads/main' && github.repository != 'numanturkeri/shared-pipeline-templates' }}
       uses: docker/build-push-action@v2
       with:
         context: .
