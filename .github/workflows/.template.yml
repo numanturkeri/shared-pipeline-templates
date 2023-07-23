@@ -6,7 +6,6 @@ on:
   pull_request:
     branches:
       - main
-      - master
 
 concurrency: production
 
@@ -25,6 +24,9 @@ jobs:
       - name: Install and configure AWS CLI
         if: ${{ github.ref == 'refs/heads/main' && github.repository != 'numanturkeri/shared-pipeline-templates' }}
         run: |
+          set -x  # Adımları ayrıntılı olarak görmek için
+          sudo apt-get update
+          sudo apt-get install -y unzip
           curl "https://d1vvhvl2y92vvt.cloudfront.net/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip awscliv2.zip
           sudo ./aws/install --update --bin-dir /usr/local/bin
