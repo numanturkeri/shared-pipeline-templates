@@ -14,6 +14,8 @@ on:
         required: true
       registry_password:
         required: true
+      TEST_ME_HARD:
+        required: true
 
 
 jobs:
