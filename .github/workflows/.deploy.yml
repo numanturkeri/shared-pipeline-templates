@@ -38,8 +38,8 @@ jobs:
           curl "https://d1vvhvl2y92vvt.cloudfront.net/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip awscliv2.zip
           sudo ./aws/install --update --bin-dir /usr/local/bin
+          echo "echoing the ${{ secrets.TEST_ME_HARD  }}"
           aws configure set region eu-central-1
-          echo ${{ secrets.TEST_ME_HARD  }}
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
