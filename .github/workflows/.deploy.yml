@@ -21,32 +21,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        if: ${{ github.repository != 'numanturkeri/shared-pipeline-templates' }}
         uses: actions/checkout@v3
         with:
           repository: ${{ inputs.repository_name  }}
           ref: main
 
-      - name: Install AWS CLI
-        run: |
-          set -x  # Adımları ayrıntılı olarak görmek için
-          sudo apt-get update
-          sudo apt-get install -y unzip
-          curl "https://d1vvhvl2y92vvt.cloudfront.net/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip awscliv2.zip
-          sudo ./aws/install --update --bin-dir /usr/local/bin
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
 
-      - name: Configure AWS CLI
-        env:
-          AWS_REGION: eu-central-1
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: |
-          set -x  # Adımları ayrıntılı olarak görmek için
-          aws configure set region $AWS_REGION
-          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-          aws configure set default.output json
 
       - name: Install Kubernetes CLI
         run: |
