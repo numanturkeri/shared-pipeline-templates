@@ -47,7 +47,7 @@ jobs:
       uses: docker/setup-buildx-action@v1
 
     - name: Login to GitHub Container Registry
-      if: ${{ github.ref == 'refs/heads/main' && github.repository != 'numanturkeri/shared-pipeline-templates' }}
+      if: ${{ github.repository != 'numanturkeri/shared-pipeline-templates' }}
       uses: docker/login-action@v2
       with:
         registry: ghcr.io
@@ -55,7 +55,7 @@ jobs:
         password: ${{ secrets.registry_password }}
 
     - name: Build and push Docker image
-      if: ${{ github.ref == 'refs/heads/main' && github.repository != 'numanturkeri/shared-pipeline-templates' }}
+      if: ${{ github.repository != 'numanturkeri/shared-pipeline-templates' }}
       uses: docker/build-push-action@v2
       with:
         context: .
