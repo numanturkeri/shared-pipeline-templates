@@ -40,7 +40,12 @@ jobs:
           WITH_V: true
           DRY_RUN: ${{ inputs.dry_run }}
 
-      - name: Set up environment variable
-        run: echo "THE_TAG=$FIRST_TAG" >> $GITHUB_ENV
-        env:
-          FIRST_TAG: ${{ steps.taggerDryRun.outputs.new_tag }}
+      - name: Generate output
+        id: step1
+        run: echo ${{ steps.taggerDryRun.outputs.new_tag }} > output.txt
+
+      - name: Archive output
+        uses: actions/upload-artifact@v2
+        with:
+          name: output
+          path: output.txt
