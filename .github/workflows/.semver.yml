@@ -28,7 +28,6 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: numanturkeri/omnisystem
-          ref: main
 
       #Dry run to estimate the next tag version
       - name: Minor version Dry run
@@ -43,8 +42,7 @@ jobs:
       - name: Generate output
         id: step1
         run: |
-          echo "${{ steps.taggerDryRun.outputs.new_tag }}"
-          echo "${{ steps.taggerDryRun.outputs.new_tag }}" > output.txt
+          echo ${{ steps.taggerDryRun.outputs.new_tag }} > output.txt
 
       - name: Archive output
         uses: actions/upload-artifact@v2
