@@ -41,4 +41,6 @@ jobs:
           DRY_RUN: ${{ inputs.dry_run }}
 
       - name: Set up environment variable
-        run: echo "LAST_TAG=0.0.5" >> $GITHUB_ENV
+        run: echo "LAST_TAG=$FIRST_TAG" >> $GITHUB_ENV
+        env:
+          FIRST_TAG: ${{ steps.taggerDryRun.outputs.new_tag }}
