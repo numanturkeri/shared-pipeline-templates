@@ -3,9 +3,6 @@ name: Deploy
 on:
   push:
     branches:
-      - '*'
-  pull_request:
-    branches:
       - main
   workflow_call:
     inputs:
@@ -17,6 +14,10 @@ on:
         required: true
       registry_password:
         required: true
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
 
 
 jobs:
@@ -24,39 +25,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        if: ${{ github.repository != 'numanturkeri/shared-pipeline-templates' }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
         with:
           repository: ${{ inputs.repository_name  }}
           ref: main
 
-      - name: Install AWS CLI
-        if: ${{ github.ref == 'refs/heads/main' && github.repository != 'numanturkeri/shared-pipeline-templates' }}
-        run: |
-          set -x  # Adımları ayrıntılı olarak görmek için
-          sudo apt-get update
-          sudo apt-get install -y unzip
-          curl "https://d1vvhvl2y92vvt.cloudfront.net/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip awscliv2.zip
-          sudo ./aws/install --update --bin-dir /usr/local/bin
-
-      - name: Configure AWS CLI
-        if: ${{ github.ref == 'refs/heads/main' && github.repository != 'numanturkeri/shared-pipeline-templates' }}
-        run: |
-          set -x  # Adımları ayrıntılı olarak görmek için
-          aws configure set region eu-central-1
-          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
       - name: Install Kubernetes CLI
-        if: ${{ github.ref == 'refs/heads/main' && github.repository != 'numanturkeri/shared-pipeline-templates' }}
         run: |
           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x kubectl
           sudo mv kubectl /usr/local/bin/
 
+      - name: Install and configure AWS CLI
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: |
+          curl "https://d1vvhvl2y92vvt.cloudfront.net/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install --update --bin-dir /usr/local/bin
+          aws configure set region eu-central-1
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
       - name: Login to GitHub Container Registry
-        if: ${{ github.ref == 'refs/heads/main' && github.repository != 'numanturkeri/shared-pipeline-templates' }}
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
@@ -64,7 +54,6 @@ jobs:
           password: ${{secrets.registry_password}}
 
       - name: Deploy to Amazon EKS
-        if: ${{ github.ref == 'refs/heads/main' && github.repository != 'numanturkeri/shared-pipeline-templates' }}
         run: |
           aws eks --region eu-central-1 update-kubeconfig --name omni-cluster
           kubectl create secret docker-registry github-registry \
