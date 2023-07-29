@@ -43,8 +43,8 @@ jobs:
       - name: Generate output
         id: step1
         run: |
-          echo ${{ steps.taggerDryRun.outputs.new_tag }}
-          echo ${{ steps.taggerDryRun.outputs.new_tag }} > output.txt
+          echo "${{ steps.taggerDryRun.outputs.new_tag }}"
+          echo "${{ steps.taggerDryRun.outputs.new_tag }}" > output.txt
 
       - name: Archive output
         uses: actions/upload-artifact@v2
