@@ -39,6 +39,3 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WITH_V: true
           DRY_RUN: ${{ inputs.dry_run }}
-
-      - name: Set up environment variable
-        run: echo "LAST_TAG=${{ steps.taggerDryRun.outputs.new_tag }}" >> $GITHUB_ENV
