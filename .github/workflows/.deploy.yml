@@ -23,12 +23,37 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    needs: publishTag
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+
+      - name: Download output
+        uses: actions/download-artifact@v2
         with:
-          repository: ${{ inputs.repository_name  }}
-          ref: main
+          name: output
+
+      - name: Read output
+        id: step2
+        run: |
+          cat output.txt
+          echo "MY_TAG=$(cat output.txt)" >> $GITHUB_ENV
+
+      - name: Install AWS CLI
+        run: |
+          set -x  # Adımları ayrıntılı olarak görmek için
+          sudo apt-get update
+          sudo apt-get install -y unzip
+          curl "https://d1vvhvl2y92vvt.cloudfront.net/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install --update --bin-dir /usr/local/bin
+
+      - name: Configure AWS CLI
+        run: |
+          set -x  # Adımları ayrıntılı olarak görmek için
+          aws configure set region eu-central-1
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Install Kubernetes CLI
         run: |
@@ -36,30 +61,49 @@ jobs:
           chmod +x kubectl
           sudo mv kubectl /usr/local/bin/
 
-      - name: Install and configure AWS CLI
-        if: ${{ github.ref == 'refs/heads/main' }}
+      - name: Configure kubectl for EKS cluster
         run: |
-          curl "https://d1vvhvl2y92vvt.cloudfront.net/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip awscliv2.zip
-          sudo ./aws/install --update --bin-dir /usr/local/bin
-          aws configure set region eu-central-1
-          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws eks --region eu-central-1 update-kubeconfig --name omni-cluster
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{secrets.registry_username}}
-          password: ${{secrets.registry_password}}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Deploy to Amazon EKS
+      #      - name: Deploy to Amazon EKS
+      #        run: |
+      #          aws eks --region eu-central-1 update-kubeconfig --name omni-cluster
+      #          kubectl create secret docker-registry github-registry \
+      #                --docker-server=ghcr.io \
+      #                --docker-username=${{ github.repository_owner }} \
+      #                --docker-password=${{ secrets.GITHUB_TOKEN }} \
+      #                --dry-run=client -o yaml | kubectl apply -f -
+      #          kubectl apply -f k8s.yaml
+      #          kubectl rollout status deployment/omni-cluster
+
+      - name: Install Helm
         run: |
-          aws eks --region eu-central-1 update-kubeconfig --name omni-cluster
-          kubectl create secret docker-registry github-registry \
-                --docker-server=ghcr.io \
-                --docker-username=${{ secrets.registry_username }} \
-                --docker-password=${{ secrets.registry_password }} \
-                --dry-run=client -o yaml | kubectl apply -f -
-          kubectl apply -f k8s.yaml
-          kubectl rollout status deployment/omni-cluster
+          curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+
+      - name: Install Helm Diff Plugin
+        run: |
+          helm plugin install https://github.com/databus23/helm-diff
+
+      - name: Install Helmfile
+        run: |
+          curl -L https://github.com/roboll/helmfile/releases/latest/download/helmfile_linux_amd64 -o helmfile
+          chmod +x helmfile
+          sudo mv helmfile /usr/local/bin/
+
+      - name: Deploy to EKS with Helm
+        env:
+          CONTAINER_REGISTRY_USERNAME: ${{ github.repository_owner }}
+          CONTAINER_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        run: |
+          cd deploy
+          helmfile diff
+          helmfile apply
