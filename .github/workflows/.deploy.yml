@@ -97,11 +97,6 @@ jobs:
           sudo mv helmfile /usr/local/bin/
 
       - name: Deploy to EKS with Helm
-        env:
-          CONTAINER_REGISTRY_USERNAME: ${{ github.repository_owner }}
-          CONTAINER_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
         run: |
           cd deploy
           helmfile diff
