@@ -19,6 +19,9 @@ on:
       AWS_SECRET_ACCESS_KEY:
         required: true
 
+env:
+  CONTAINER_REGISTRY_USERNAME: ${{ secrets.registry_username }}
+  CONTAINER_REGISTRY_PASSWORD: ${{ secrets.registry_password }}
 
 jobs:
   deploy:
