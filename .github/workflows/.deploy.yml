@@ -100,6 +100,8 @@ jobs:
           CONTAINER_REGISTRY_USERNAME: ${{ secrets.registry_username }}
           CONTAINER_REGISTRY_PASSWORD: ${{ secrets.registry_password }}
         run: |
+          export CONTAINER_REGISTRY_USERNAME=${{ secrets.registry_username }}
+          export CONTAINER_REGISTRY_PASSWORD=${{ secrets.registry_password }}
           cd deploy
           helmfile diff
           helmfile apply
