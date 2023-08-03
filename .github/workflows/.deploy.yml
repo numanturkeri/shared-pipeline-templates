@@ -97,10 +97,6 @@ jobs:
           sudo mv helmfile /usr/local/bin/
 
       - name: Deploy to EKS with Helm
-        env:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd deploy
           helmfile diff
