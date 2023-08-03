@@ -97,7 +97,7 @@ jobs:
           sudo mv helmfile /usr/local/bin/
 
       - name: Deploy to EKS with Helm
-        with:
+        env:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
