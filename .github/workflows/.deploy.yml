@@ -19,10 +19,6 @@ on:
       AWS_SECRET_ACCESS_KEY:
         required: true
 
-env:
-  CONTAINER_REGISTRY_USERNAME: ${{ secrets.registry_username }}
-  CONTAINER_REGISTRY_PASSWORD: ${{ secrets.registry_password }}
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -100,6 +96,9 @@ jobs:
           sudo mv helmfile /usr/local/bin/
 
       - name: Deploy to EKS with Helm
+        env:
+          CONTAINER_REGISTRY_USERNAME: ${{ secrets.registry_username }}
+          CONTAINER_REGISTRY_PASSWORD: ${{ secrets.registry_password }}
         run: |
           cd deploy
           helmfile diff
