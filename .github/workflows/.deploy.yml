@@ -104,4 +104,3 @@ jobs:
           export CONTAINER_REGISTRY_PASSWORD=${{ secrets.registry_password }}
           cd deploy
           helmfile diff
-          helmfile apply
