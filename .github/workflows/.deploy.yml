@@ -103,5 +103,8 @@ jobs:
           export CONTAINER_REGISTRY_USERNAME=${{ secrets.registry_username }}
           export CONTAINER_REGISTRY_PASSWORD=${{ secrets.registry_password }}
           cd deploy
+          echo CONTAINER_REGISTRY_USERNAME
+          echo CONTAINER_REGISTRY_PASSWORD
+          printenv
           helmfile diff
-          helmfile apply
+#          helmfile apply
