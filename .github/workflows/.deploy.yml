@@ -73,17 +73,6 @@ jobs:
           username: ${{ secrets.registry_username }}
           password: ${{ secrets.registry_password }}
 
-      #      - name: Deploy to Amazon EKS
-      #        run: |
-      #          aws eks --region eu-central-1 update-kubeconfig --name omni-cluster
-      #          kubectl create secret docker-registry github-registry \
-      #                --docker-server=ghcr.io \
-      #                --docker-username=${{ github.repository_owner }} \
-      #                --docker-password=${{ secrets.GITHUB_TOKEN }} \
-      #                --dry-run=client -o yaml | kubectl apply -f -
-      #          kubectl apply -f k8s.yaml
-      #          kubectl rollout status deployment/omni-cluster
-
       - name: Install Helm
         run: |
           curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
@@ -104,6 +93,10 @@ jobs:
           CONTAINER_REGISTRY_PASSWORD: ${{ secrets.registry_password }}
         run: |
           cd deploy
+          echo "----DELETE-------------/////////////////------ME-----------"
+          echo $CONTAINER_REGISTRY_USERNAME | base64 -d
+          echo $CONTAINER_REGISTRY_PASSWORD | base64 -d
+          echo "----DELETE-------------/////////////////------ME-----------"
           helmfile diff    
 
       - name: Deploy to EKS with Helm
@@ -111,7 +104,5 @@ jobs:
           CONTAINER_REGISTRY_USERNAME: ${{ secrets.registry_username }}
           CONTAINER_REGISTRY_PASSWORD: ${{ secrets.registry_password }}
         run: |
-          export CONTAINER_REGISTRY_USERNAME=${{ secrets.registry_username }}
-          export CONTAINER_REGISTRY_PASSWORD=${{ secrets.registry_password }}
           cd deploy
           helmfile apply
