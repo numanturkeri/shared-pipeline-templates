@@ -25,6 +25,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          repository: numanturkeri/omnisystem
+          ref: feature/helm-switch
 
       - name: Download output
         uses: actions/download-artifact@v2
