@@ -9,9 +9,10 @@ on:
       repository_name:
         required: true
         type: string
-    secrets:
       registry_username:
         required: true
+        type: string
+    secrets:
       registry_password:
         required: true
       AWS_ACCESS_KEY_ID:
@@ -70,7 +71,7 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{ secrets.registry_username }}
+          username: ${{ inputs.registry_username }}
           password: ${{ secrets.registry_password }}
 
       - name: Install Helm
@@ -87,21 +88,20 @@ jobs:
           chmod +x helmfile
           sudo mv helmfile /usr/local/bin/
 
-      - name: Deploy to EKS with Helm
+      - name: Deploy Diff
         env:
-          CONTAINER_REGISTRY_USERNAME: ${{ secrets.registry_username }}
+          CONTAINER_REGISTRY_USERNAME: ${{ inputs.registry_username }}
           CONTAINER_REGISTRY_PASSWORD: ${{ secrets.registry_password }}
         run: |
           cd deploy
           echo "----DELETE-------------/////////////////------ME-----------"
-          echo $CONTAINER_REGISTRY_USERNAME | base64 -d
-          echo $CONTAINER_REGISTRY_PASSWORD | base64 -d
-          echo "----DELETE-------------/////////////////------ME-----------"
+          echo $CONTAINER_REGISTRY_USERNAME 
+          echo $CONTAINER_REGISTRY_PASSWORD
           helmfile diff    
 
-      - name: Deploy to EKS with Helm
+      - name: Deploy Apply
         env:
-          CONTAINER_REGISTRY_USERNAME: ${{ secrets.registry_username }}
+          CONTAINER_REGISTRY_USERNAME: ${{ inputs.registry_username }}
           CONTAINER_REGISTRY_PASSWORD: ${{ secrets.registry_password }}
         run: |
           cd deploy
