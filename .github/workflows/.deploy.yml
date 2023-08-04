@@ -103,11 +103,15 @@ jobs:
           CONTAINER_REGISTRY_USERNAME: ${{ secrets.registry_username }}
           CONTAINER_REGISTRY_PASSWORD: ${{ secrets.registry_password }}
         run: |
+          cd deploy
+          helmfile diff    
+
+      - name: Deploy to EKS with Helm
+        env:
+          CONTAINER_REGISTRY_USERNAME: ${{ secrets.registry_username }}
+          CONTAINER_REGISTRY_PASSWORD: ${{ secrets.registry_password }}
+        run: |
           export CONTAINER_REGISTRY_USERNAME=${{ secrets.registry_username }}
           export CONTAINER_REGISTRY_PASSWORD=${{ secrets.registry_password }}
           cd deploy
-          echo CONTAINER_REGISTRY_USERNAME
-          echo CONTAINER_REGISTRY_PASSWORD
-          printenv
-          helmfile diff
-#          helmfile apply
+          helmfile apply
