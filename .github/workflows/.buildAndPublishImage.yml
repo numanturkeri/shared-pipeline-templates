@@ -9,6 +9,9 @@ on:
       - main
   workflow_call:
     inputs:
+      repository_name:
+        required: true
+        type: string
       image_name:
         required: true
         type: string
@@ -28,7 +31,7 @@ jobs:
       if: ${{ true && github.repository != 'numanturkeri/shared-pipeline-templates' }}
       uses: actions/checkout@v3
       with:
-        repository: numanturkeri/omnisystem
+        repository: ${{ inputs.repository_name }}
         ref: main
 
     - name: Set up JDK

@@ -27,8 +27,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          repository: numanturkeri/omnisystem
-          ref: feature/helm-switch
+          repository: ${{ inputs.repository_name }}
+          ref: main
 
       - name: Download output
         uses: actions/download-artifact@v2

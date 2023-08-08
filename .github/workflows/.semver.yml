@@ -9,6 +9,9 @@ on:
       - main
   workflow_call:
     inputs:
+      repository_name:
+        required: true
+        type: string
       dry_run:
         required: true
         type: boolean
@@ -27,7 +30,8 @@ jobs:
         if: ${{ github.repository != 'numanturkeri/shared-pipeline-templates' }}
         uses: actions/checkout@v3
         with:
-          repository: numanturkeri/omnisystem
+          repository: ${{ inputs.repository_name }}
+          ref: main
 
       #Dry run to estimate the next tag version
       - name: Minor version Dry run
