@@ -9,9 +9,10 @@ on:
       repository_name:
         required: true
         type: string
-    secrets:
       registry_username:
         required: true
+        type: string
+    secrets:
       registry_password:
         required: true
       AWS_ACCESS_KEY_ID:
@@ -25,6 +26,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          repository: numanturkeri/omnisystem
+          ref: feature/helm-switch
 
       - name: Download output
         uses: actions/download-artifact@v2
@@ -67,19 +71,8 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{ secrets.registry_username }}
+          username: ${{ inputs.registry_username }}
           password: ${{ secrets.registry_password }}
-
-      #      - name: Deploy to Amazon EKS
-      #        run: |
-      #          aws eks --region eu-central-1 update-kubeconfig --name omni-cluster
-      #          kubectl create secret docker-registry github-registry \
-      #                --docker-server=ghcr.io \
-      #                --docker-username=${{ github.repository_owner }} \
-      #                --docker-password=${{ secrets.GITHUB_TOKEN }} \
-      #                --dry-run=client -o yaml | kubectl apply -f -
-      #          kubectl apply -f k8s.yaml
-      #          kubectl rollout status deployment/omni-cluster
 
       - name: Install Helm
         run: |
@@ -95,13 +88,21 @@ jobs:
           chmod +x helmfile
           sudo mv helmfile /usr/local/bin/
 
-      - name: Deploy to EKS with Helm
+      - name: Deploy Diff
         env:
-          CONTAINER_REGISTRY_USERNAME: ${{ secrets.registry_username }}
+          CONTAINER_REGISTRY_USERNAME: ${{ inputs.registry_username }}
           CONTAINER_REGISTRY_PASSWORD: ${{ secrets.registry_password }}
         run: |
-          export CONTAINER_REGISTRY_USERNAME=${{ secrets.registry_username }}
-          export CONTAINER_REGISTRY_PASSWORD=${{ secrets.registry_password }}
           cd deploy
-          helmfile diff
+          echo "----DELETE-------------/////////////////------ME-----------"
+          echo $CONTAINER_REGISTRY_USERNAME 
+          echo $CONTAINER_REGISTRY_PASSWORD
+          helmfile diff    
+
+      - name: Deploy Apply
+        env:
+          CONTAINER_REGISTRY_USERNAME: ${{ inputs.registry_username }}
+          CONTAINER_REGISTRY_PASSWORD: ${{ secrets.registry_password }}
+        run: |
+          cd deploy
           helmfile apply
