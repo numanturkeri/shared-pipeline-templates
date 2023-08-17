@@ -94,9 +94,6 @@ jobs:
           CONTAINER_REGISTRY_PASSWORD: ${{ secrets.registry_password }}
         run: |
           cd deploy
-          echo "----DELETE-------------/////////////////------ME-----------"
-          echo $CONTAINER_REGISTRY_USERNAME 
-          echo $CONTAINER_REGISTRY_PASSWORD
           helmfile diff    
 
       - name: Deploy Apply
