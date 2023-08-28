@@ -1,0 +1,65 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_call:
+    inputs:
+      repository_name:
+        required: true
+        type: string
+    secrets:
+      registry_username:
+        required: true
+      registry_password:
+        required: true
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ inputs.repository_name  }}
+          ref: main
+
+      - name: Install Kubernetes CLI
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+
+      - name: Install and configure AWS CLI
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: |
+          curl "https://d1vvhvl2y92vvt.cloudfront.net/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install --update --bin-dir /usr/local/bin
+          aws configure set region eu-central-1
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{secrets.registry_username}}
+          password: ${{secrets.registry_password}}
+
+      - name: Deploy to Amazon EKS
+        run: |
+          aws eks --region eu-central-1 update-kubeconfig --name omni-cluster
+          kubectl create secret docker-registry github-registry \
+                --docker-server=ghcr.io \
+                --docker-username=${{ secrets.registry_username }} \
+                --docker-password=${{ secrets.registry_password }} \
+                --dry-run=client -o yaml | kubectl apply -f -
+          kubectl apply -f k8s.yaml
+          kubectl rollout status deployment/omni-cluster
