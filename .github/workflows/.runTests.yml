@@ -1,4 +1,4 @@
-name: Maven Build
+name: Run Tests
 on:
   push:
     branches:
@@ -13,7 +13,7 @@ on:
         type: string
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -23,15 +23,6 @@ jobs:
           repository: ${{ inputs.repository_name }}
           ref: main
 
-      - name: Cache Maven dependencies
-        if: ${{ true && github.repository != 'numanturkeri/shared-pipeline-templates' }}
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-
       - name: Set up JDK
         if: ${{ true && github.repository != 'numanturkeri/shared-pipeline-templates' }}
         uses: actions/setup-java@v3
@@ -39,7 +30,6 @@ jobs:
           distribution: 'adopt'
           java-version: '17'
 
-      - name: Build with Maven
+      - name: Run Tests
         if: ${{ true && github.repository != 'numanturkeri/shared-pipeline-templates' }}
-        run:
-          mvn clean install
+        run: mvn test
