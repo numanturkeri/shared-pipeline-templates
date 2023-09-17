@@ -67,7 +67,6 @@
 #          ghcr.io/${{ inputs.image_name }}:latest
 #          ghcr.io/${{ inputs.image_name }}:${{ inputs.tag }}
 
-
 name: Build And Publish Container Image
 
 on:
@@ -127,12 +126,13 @@ jobs:
           username: ${{ secrets.registry_username }}
           password: ${{ secrets.registry_password }}
 
+      - name: Set environment variables
+        if: ${{ github.repository != 'numanturkeri/shared-pipeline-templates' }}
+        run: |
+          echo "IMAGE_NAME=${{ inputs.image_name }}" >> $GITHUB_ENV
+          echo "TAG=${{ inputs.tag }}" >> $GITHUB_ENV
+
       - name: Build and push Docker image
         if: ${{ github.repository != 'numanturkeri/shared-pipeline-templates' }}
-        env:
-          IMAGE_NAME: ${{ inputs.image_name }}
-          TAG: ${{ inputs.tag }}
         run: |
-          echo "::set-env name=IMAGE_NAME::${IMAGE_NAME}"
-          echo "::set-env name=TAG::${TAG}"
-          docker buildx build --iidfile /tmp/docker-build-push-dOrfNV/iidfile --tag ghcr.io/${IMAGE_NAME}:latest --tag ghcr.io/${IMAGE_NAME}:${TAG} --metadata-file /tmp/docker-build-push-dOrfNV/metadata-file --push .
+          docker buildx build --iidfile /tmp/docker-build-push-dOrfNV/iidfile --tag ghcr.io/${{ env.IMAGE_NAME }}:latest --tag ghcr.io/${{ env.IMAGE_NAME }}:${{ env.TAG }} --metadata-file /tmp/docker-build-push-dOrfNV/metadata-file --push .
