@@ -34,9 +34,6 @@ jobs:
         repository: ${{ inputs.repository_name }}
         ref: main
 
-    - name: Print tag value
-      run: echo "Tag value is ${{ inputs.tag }}"
-
     - name: Set up JDK
       if: ${{ true && github.repository != 'numanturkeri/shared-pipeline-templates' }}
       uses: actions/setup-java@v3

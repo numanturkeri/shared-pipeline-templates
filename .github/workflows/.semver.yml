@@ -99,9 +99,6 @@ jobs:
           WITH_V: true
           DRY_RUN: ${{ inputs.dry_run }}
 
-      - name: Print new tag
-        run: echo "New tag is ${{ steps.taggerDryRun.outputs.new_tag }}"
-
       - name: Generate output
         id: step1
         run: |
