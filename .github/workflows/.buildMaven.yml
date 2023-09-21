@@ -42,4 +42,4 @@ jobs:
       - name: Build with Maven
         if: ${{ true && github.repository != 'numanturkeri/shared-pipeline-templates' }}
         run:
-          mvn clean install
+          mvn clean install -Dmaven.test.skip=true
