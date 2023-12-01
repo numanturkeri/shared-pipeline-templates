@@ -46,4 +46,6 @@ jobs:
 
       - name: Build with npm
         if: ${{ true && github.repository != 'numanturkeri/shared-pipeline-templates' }}
-        run: npm run build
+        run: |
+          cd frontend
+          npm run build
