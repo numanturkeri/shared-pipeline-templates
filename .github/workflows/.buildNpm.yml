@@ -40,7 +40,9 @@ jobs:
 
       - name: Install project dependencies
         if: ${{ true && github.repository != 'numanturkeri/shared-pipeline-templates' }}
-        run: npm ci
+        run: | 
+          cd frontend
+          npm ci
 
       - name: Build with npm
         if: ${{ true && github.repository != 'numanturkeri/shared-pipeline-templates' }}
