@@ -23,23 +23,25 @@ jobs:
           repository: ${{ inputs.repository_name }}
           ref: main
 
-      - name: Cache Maven dependencies
+      - name: Cache npm dependencies
         if: ${{ true && github.repository != 'numanturkeri/shared-pipeline-templates' }}
         uses: actions/cache@v2
         with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-maven-
+            ${{ runner.os }}-npm-
 
-      - name: Set up JDK
+      - name: Install Node.js
         if: ${{ true && github.repository != 'numanturkeri/shared-pipeline-templates' }}
-        uses: actions/setup-java@v3
+        uses: actions/setup-node@v4
         with:
-          distribution: 'adopt'
-          java-version: '17'
+          node-version: '14'
 
-      - name: Build with Maven
+      - name: Install project dependencies
         if: ${{ true && github.repository != 'numanturkeri/shared-pipeline-templates' }}
-        run:
-          mvn clean install -Dmaven.test.skip=true
+        run: npm ci
+
+      - name: Build with npm
+        if: ${{ true && github.repository != 'numanturkeri/shared-pipeline-templates' }}
+        run: npm run build
