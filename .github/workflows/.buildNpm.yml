@@ -42,7 +42,7 @@ jobs:
         if: ${{ true && github.repository != 'numanturkeri/shared-pipeline-templates' }}
         run: | 
           cd frontend
-          npm ci
+          npm i -f
 
       - name: Build with npm
         if: ${{ true && github.repository != 'numanturkeri/shared-pipeline-templates' }}
