@@ -18,6 +18,10 @@ on:
         required: true
       AWS_SECRET_ACCESS_KEY:
         required: true
+      EKS_REGION:
+        required: true
+      EKS_CLUSTER_NAME:
+        required: true
 
 
 jobs:
@@ -42,7 +46,7 @@ jobs:
           curl "https://d1vvhvl2y92vvt.cloudfront.net/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip awscliv2.zip
           sudo ./aws/install --update --bin-dir /usr/local/bin
-          aws configure set region eu-central-1
+          aws configure set region ${{ secrets.EKS_REGION }}
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
@@ -55,11 +59,11 @@ jobs:
 
       - name: Deploy to Amazon EKS
         run: |
-          aws eks --region eu-central-1 update-kubeconfig --name omni-cluster
+          aws eks --region ${{ secrets.EKS_REGION }} update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}
           kubectl create secret docker-registry github-registry \
                 --docker-server=ghcr.io \
                 --docker-username=${{ secrets.registry_username }} \
                 --docker-password=${{ secrets.registry_password }} \
                 --dry-run=client -o yaml | kubectl apply -f -
           kubectl apply -f k8s.yaml
-          kubectl rollout status deployment/omni-cluster
+          kubectl rollout status deployment/${{ secrets.EKS_CLUSTER_NAME }}

@@ -19,6 +19,10 @@ on:
         required: true
       AWS_SECRET_ACCESS_KEY:
         required: true
+      EKS_REGION:
+        required: true
+      EKS_CLUSTER_NAME:
+        required: true
 
 jobs:
   deploy:
@@ -53,7 +57,7 @@ jobs:
       - name: Configure AWS CLI
         run: |
           set -x  # Adımları ayrıntılı olarak görmek için
-          aws configure set region eu-central-1
+          aws configure set region ${{ secrets.EKS_REGION }}
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
@@ -65,7 +69,7 @@ jobs:
 
       - name: Configure kubectl for EKS cluster
         run: |
-          aws eks --region eu-central-1 update-kubeconfig --name omni-cluster
+          aws eks --region ${{ secrets.EKS_REGION }} update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
