@@ -1,4 +1,4 @@
-name: Build And Publish Java Container Image
+name: Build And Publish Npm Container Image
 
 on:
   push:
@@ -22,6 +22,10 @@ on:
         required: true
       registry_password:
         required: true
+      static_folder:
+        required: true
+      dist_folder:
+        required: true
 
 jobs:
   build:
@@ -34,17 +38,27 @@ jobs:
         repository: ${{ inputs.repository_name }}
         ref: main
 
-    - name: Set up JDK
+    - name: Setup Node.js
       if: ${{ true && github.repository != 'numanturkeri/shared-pipeline-templates' }}
-      uses: actions/setup-java@v3
+      uses: actions/setup-node@v4
       with:
-        distribution: 'adopt'
-        java-version: '17'
+        node-version: '14'
 
-    - name: Build with Maven
+    - name: Install project dependencies
       if: ${{ true && github.repository != 'numanturkeri/shared-pipeline-templates' }}
-      run:
-        mvn clean install
+      run: |
+        cd frontend
+        npm i -f
+
+    - name: Build with npm
+      if: ${{ true && github.repository != 'numanturkeri/shared-pipeline-templates' }}
+      run: |
+        cd frontend
+        npm run build
+
+    - name: Copy to Static Folder
+      run: |
+          cp -R ${{ secrets.dist_folder }}* ${{ secrets.static_folder }}
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
