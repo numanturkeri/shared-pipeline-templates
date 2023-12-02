@@ -56,6 +56,13 @@ jobs:
         cd frontend
         npm run build
 
+    - name: Create Static Folder
+      run: |
+          if [ ! -d ${{ secrets.static_folder }} ]; then
+            echo "Static klasörü bulunamadı. Oluşturuluyor...";
+            mkdir -p ${{ secrets.static_folder }};
+          fi
+
     - name: Copy to Static Folder
       run: |
           cp -R ${{ secrets.dist_folder }}* ${{ secrets.static_folder }}
