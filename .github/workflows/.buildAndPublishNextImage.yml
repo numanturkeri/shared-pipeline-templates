@@ -26,6 +26,8 @@ on:
         required: true
       dist_folder:
         required: true
+      be_url:
+        required: true
 
 jobs:
   build:
@@ -38,37 +40,8 @@ jobs:
         repository: ${{ inputs.repository_name }}
         ref: main
 
-    - name: Setup Node.js
-      if: ${{ true && github.repository != 'numanturkeri/shared-pipeline-templates' }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: '14'
-
-    - name: Install project dependencies
-      if: ${{ true && github.repository != 'numanturkeri/shared-pipeline-templates' }}
-      run: |
-        cd frontend
-        npm i -f
-
-    - name: Build with npm
-      if: ${{ true && github.repository != 'numanturkeri/shared-pipeline-templates' }}
-      run: |
-        cd frontend
-        npm run build
-
-    - name: Create Static Folder
-      run: |
-          if [ ! -d ${{ secrets.static_folder }} ]; then
-            echo "Static klasörü bulunamadı. Oluşturuluyor...";
-            mkdir -p ${{ secrets.static_folder }};
-          fi
-
-    - name: Copy to Static Folder
-      run: |
-          cp -R ${{ secrets.dist_folder }}* ${{ secrets.static_folder }}
-
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
+      uses: docker/setup-buildx-action@v3
 
     - name: Login to GitHub Container Registry
       if: ${{ github.repository != 'numanturkeri/shared-pipeline-templates' }}
@@ -84,6 +57,8 @@ jobs:
       with:
         context: .
         push: true
+        build-args: |
+          NEXT_PUBLIC_API_URL=${{ secrets.be_url }}
         tags: |
           ghcr.io/${{ inputs.image_name }}:latest
           ghcr.io/${{ inputs.image_name }}:${{ inputs.tag }}
