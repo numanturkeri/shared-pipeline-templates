@@ -22,10 +22,6 @@ on:
         required: true
       registry_password:
         required: true
-      static_folder:
-        required: true
-      dist_folder:
-        required: true
       be_url:
         required: true
 
