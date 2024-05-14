@@ -1,59 +1,3 @@
-#name: Semantic versioning
-#
-#on:
-#  push:
-#    branches:
-#      - '*'
-#  pull_request:
-#    branches:
-#      - main
-#  workflow_call:
-#    inputs:
-#      repository_name:
-#        required: true
-#        type: string
-#      dry_run:
-#        required: true
-#        type: boolean
-#    outputs:
-#      newTag:
-#        description: "The newest tag of the repository"
-#        value: ${{ jobs.tagging.outputs.newTag }}
-#
-#jobs:
-#  tagging:
-#    runs-on: ubuntu-latest
-#    outputs:
-#      newTag: ${{ steps.taggerDryRun.outputs.new_tag }}
-#    steps:
-#      - name: Checkout repository
-#        if: ${{ github.repository != 'numanturkeri/shared-pipeline-templates' }}
-#        uses: actions/checkout@v3
-#        with:
-#          repository: ${{ inputs.repository_name }}
-#          ref: main
-#
-#      #Dry run to estimate the next tag version
-#      - name: Minor version Dry run
-#        if: ${{ true && github.repository != 'numanturkeri/shared-pipeline-templates' }}
-#        id: taggerDryRun
-#        uses: anothrNick/github-tag-action@1.36.0
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#          WITH_V: true
-#          DRY_RUN: ${{ inputs.dry_run }}
-#
-#      - name: Generate output
-#        id: step1
-#        run: |
-#          echo ${{ steps.taggerDryRun.outputs.new_tag }} > output.txt
-#
-#      - name: Archive output
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: output
-#          path: output.txt
-
 name: Semantic versioning
 
 on:
@@ -71,6 +15,10 @@ on:
       dry_run:
         required: true
         type: boolean
+      new_image:
+        required: false
+        type: boolean
+        default: true
     outputs:
       newTag:
         description: "The newest tag of the repository"
@@ -81,6 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       newTag: ${{ steps.taggerDryRun.outputs.new_tag }}
+      previousTag: ${{ steps.taggerDryRun.outputs.tag }}
     steps:
       - name: Checkout repository
         if: ${{ github.repository != 'numanturkeri/shared-pipeline-templates' }}
@@ -102,10 +51,14 @@ jobs:
       - name: Generate output
         id: step1
         run: |
-          echo ${{ steps.taggerDryRun.outputs.new_tag }} > output.txt
+          if [ ${{ inputs.new_image }} = "true" ]; then
+            echo ${{ steps.taggerDryRun.outputs.new_tag }} > tag_version.txt
+          else
+            echo ${{ steps.taggerDryRun.outputs.tag }} > tag_version.txt
+          fi
 
       - name: Archive output
         uses: actions/upload-artifact@v2
         with:
           name: output
-          path: output.txt
+          path: tag_version.txt

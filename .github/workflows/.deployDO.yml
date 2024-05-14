@@ -38,8 +38,8 @@ jobs:
       - name: Read output
         id: step2
         run: |
-          cat output.txt
-          echo "NEW_TAG=$(cat output.txt)" >> $GITHUB_ENV
+          cat tag_version.txt
+          echo "NEW_TAG=$(cat tag_version.txt)" >> $GITHUB_ENV
 
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
