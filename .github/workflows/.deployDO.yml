@@ -88,7 +88,7 @@ jobs:
           CONTAINER_REGISTRY_PASSWORD: ${{ secrets.registry_password }}
         run: |
           cd deploy
-          helmfile diff    
+          helmfile --environment ${{ inputs.deployment_env }} diff
 
       - name: Deploy Apply
         env:
@@ -96,4 +96,4 @@ jobs:
           CONTAINER_REGISTRY_PASSWORD: ${{ secrets.registry_password }}
         run: |
           cd deploy
-          helmfile apply
+          helmfile --environment ${{ inputs.deployment_env }} apply
