@@ -44,7 +44,6 @@ jobs:
         run: |
           cat tag_version.txt
           echo "NEW_TAG=$(cat tag_version.txt)" >> $GITHUB_ENV
-          echo "DEPLOYMENT_ENV=${{ inputs.deployment_env }}" >> $GITHUB_ENV
 
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
@@ -88,7 +87,7 @@ jobs:
           CONTAINER_REGISTRY_PASSWORD: ${{ secrets.registry_password }}
         run: |
           cd deploy
-          helmfile --environment ${{ inputs.deployment_env }} diff
+          helmfile -e ${{ inputs.deployment_env }} diff
 
       - name: Deploy Apply
         env:
@@ -96,4 +95,4 @@ jobs:
           CONTAINER_REGISTRY_PASSWORD: ${{ secrets.registry_password }}
         run: |
           cd deploy
-          helmfile --environment ${{ inputs.deployment_env }} apply
+          helmfile -e ${{ inputs.deployment_env }} apply
