@@ -12,6 +12,10 @@ on:
       registry_username:
         required: true
         type: string
+      deployment_env:
+        required: false
+        type: string
+        default: ''
     secrets:
       registry_password:
         required: true
@@ -35,11 +39,12 @@ jobs:
         with:
           name: output
 
-      - name: Read output
+      - name: Set Environment Variables
         id: step2
         run: |
           cat tag_version.txt
           echo "NEW_TAG=$(cat tag_version.txt)" >> $GITHUB_ENV
+          echo "DEPLOYMENT_ENV=${{ inputs.deployment_env }}" >> $GITHUB_ENV
 
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
