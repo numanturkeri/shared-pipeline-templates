@@ -10,8 +10,9 @@ on:
         required: true
         type: string
       branch_name:
-        required: true
+        required: false
         type: string
+        default: 'main'
       registry_username:
         required: true
         type: string
