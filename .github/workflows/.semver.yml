@@ -51,6 +51,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WITH_V: true
           DRY_RUN: ${{ inputs.dry_run }}
+          RELEASE_BRANCHES: master,main,development,production
 
       - name: Generate output
         id: step1
