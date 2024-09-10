@@ -63,7 +63,7 @@ jobs:
           fi
 
       - name: Archive output
-        uses: actions/upload-artifact@v3.x
+        uses: actions/upload-artifact@v3
         with:
           name: output-${{ github.run_id }}-${{ github.run_number }}-${{ github.sha }}
           path: tag_version.txt
