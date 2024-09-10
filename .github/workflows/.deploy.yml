@@ -35,7 +35,7 @@ jobs:
           ref: main
 
       - name: Download output
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: output
 
