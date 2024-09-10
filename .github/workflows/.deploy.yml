@@ -37,7 +37,7 @@ jobs:
       - name: Download output
         uses: actions/download-artifact@v3
         with:
-          name: output
+          name: output-${{ github.run_id }}-${{ github.run_number }}-${{ github.sha }}
 
       - name: Read output
         id: step2
