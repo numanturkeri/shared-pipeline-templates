@@ -88,6 +88,7 @@ jobs:
       with:
         context: .
         push: true
+        no-cache : true
         tags: |
           ghcr.io/${{ inputs.image_name }}:latest
           ghcr.io/${{ inputs.image_name }}:${{ inputs.tag }}
