@@ -34,7 +34,7 @@ jobs:
           repository: ${{ inputs.repository_name }}
           ref: main
 
-      - name: Download output
+      - name: Download output-2
         uses: actions/download-artifact@v4
         with:
           name: output-${{ github.run_id }}-${{ github.sha }}-artifact

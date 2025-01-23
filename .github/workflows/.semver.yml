@@ -62,7 +62,7 @@ jobs:
             echo ${{ steps.taggerDryRun.outputs.tag }} > tag_version.txt
           fi
 
-      - name: Archive output
+      - name: Archive output-1
         uses: actions/upload-artifact@v4
         with:
           name: output-${{ github.run_id }}-${{ github.sha }}-artifact
