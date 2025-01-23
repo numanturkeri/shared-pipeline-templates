@@ -37,8 +37,7 @@ jobs:
       - name: Download output
         uses: actions/download-artifact@v4
         with:
-          name: output-${{ github.run_id }}-${{ github.run_number }}-${{ github.sha }}
-
+          name: output-${{ github.run_id }}-${{ github.sha }}
       - name: Read output
         id: step2
         run: |
