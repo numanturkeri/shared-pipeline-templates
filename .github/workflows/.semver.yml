@@ -65,5 +65,5 @@ jobs:
       - name: Archive output
         uses: actions/upload-artifact@v4
         with:
-          name: output-${{ github.run_id }}-${{ github.sha }}-${{ github.run_started_at }}
+          name: output-${{ github.run_id }}-${{ github.sha }}-artifact
           path: tag_version.txt

@@ -41,7 +41,7 @@ jobs:
       - name: Download output
         uses: actions/download-artifact@v4
         with:
-          name: output-${{ github.run_id }}-${{ github.sha }}-${{ github.run_started_at }}
+          name: output-${{ github.run_id }}-${{ github.sha }}-artifact
       - name: Set Environment Variables
         id: step2
         run: |
