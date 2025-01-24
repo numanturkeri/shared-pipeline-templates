@@ -67,3 +67,4 @@ jobs:
         with:
           name: output
           path: tag_version.txt
+          overwrite: true
