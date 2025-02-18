@@ -29,7 +29,7 @@ jobs:
 
       - name: Cache Maven dependencies
         if: ${{ true && github.repository != 'numanturkeri/shared-pipeline-templates' }}
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
