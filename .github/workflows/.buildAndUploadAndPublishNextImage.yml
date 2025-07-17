@@ -57,17 +57,14 @@ jobs:
         run: yarn build
 
       - name: Upload static files to DigitalOcean Spaces
-        uses: jakejarvis/s3-sync-action@master
+        uses: BetaHuhn/do-spaces-action@v2
         with:
-          args: --acl public-read --delete
-        env:
-          AWS_S3_BUCKET: js-bucket
-          AWS_ACCESS_KEY_ID: ${{ secrets.do_spaces_key }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.do_spaces_secret }}
-          AWS_REGION: fra1
-          SOURCE_DIR: .next/static
-          DEST_DIR: _next/static/
-          S3_ENDPOINT: https://js-bucket.fra1.digitaloceanspaces.com
+          access_key: ${{ secrets.do_spaces_key}}
+          secret_key: ${{ secrets.do_spaces_secret }}
+          space_name: js-bucket
+          space_region: fra1
+          source: .next/static
+          out_dir: _next/static/
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
