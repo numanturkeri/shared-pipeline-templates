@@ -66,6 +66,16 @@ jobs:
           source: .next/static
           out_dir: _next/static/
 
+      - name: Upload public files to DigitalOcean Spaces
+        uses: BetaHuhn/do-spaces-action@v2
+        with:
+          access_key: ${{ secrets.do_spaces_key}}
+          secret_key: ${{ secrets.do_spaces_secret }}
+          space_name: js-bucket
+          space_region: fra1
+          source: .next/public
+          out_dir: _next/public/
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
