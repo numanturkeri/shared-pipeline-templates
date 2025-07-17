@@ -1,0 +1,91 @@
+name: Build And Publish Npm Container Image
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_call:
+    inputs:
+      repository_name:
+        required: true
+        type: string
+      image_name:
+        required: true
+        type: string
+      tag:
+        type: string
+      branch_name:
+        required: false
+        type: string
+        default: 'main'
+    secrets:
+      registry_username:
+        required: true
+      registry_password:
+        required: true
+      be_url:
+        required: true
+      do_spaces_key:
+        required: true
+      do_spaces_secret:
+        required: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ inputs.repository_name }}
+          ref: ${{ inputs.branch_name }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Create .env.production
+        run: echo "NEXT_PUBLIC_API_URL=${{ secrets.be_url }}" >> .env.production
+
+      - name: Build Next.js app
+        run: yarn build
+
+      - name: Upload static files to DigitalOcean Spaces
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read --delete
+        env:
+          AWS_S3_BUCKET: js-bucket
+          AWS_ACCESS_KEY_ID: ${{ secrets.do_spaces_key }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.do_spaces_secret }}
+          AWS_REGION: fra1
+          SOURCE_DIR: .next/static
+          DEST_DIR: _next/static/
+          S3_ENDPOINT: https://js-bucket.fra1.digitaloceanspaces.com
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.registry_username }}
+          password: ${{ secrets.registry_password }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          build-args: |
+            NEXT_PUBLIC_API_URL=${{ secrets.be_url }}
+          tags: |
+            ghcr.io/${{ inputs.image_name }}:latest
+            ghcr.io/${{ inputs.image_name }}:${{ inputs.tag }}
