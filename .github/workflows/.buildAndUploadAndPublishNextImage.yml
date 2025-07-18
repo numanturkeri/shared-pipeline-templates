@@ -21,6 +21,13 @@ on:
         required: false
         type: string
         default: 'main'
+      do_spaces_name:
+        required: true
+        type: string
+      do_spaces_region:
+        required: false
+        type: string
+        default: 'fra1'
     secrets:
       registry_username:
         required: true
@@ -32,6 +39,7 @@ on:
         required: true
       do_spaces_secret:
         required: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -61,8 +69,8 @@ jobs:
         with:
           access_key: ${{ secrets.do_spaces_key}}
           secret_key: ${{ secrets.do_spaces_secret }}
-          space_name: js-bucket
-          space_region: fra1
+          space_name: ${{ inputs.do_spaces_name }}
+          space_region: ${{ inputs.do_spaces_region }}
           source: .next/static
           out_dir: _next/static/
 
